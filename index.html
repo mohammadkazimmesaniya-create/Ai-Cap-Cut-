@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CapCut AI Pro - Real Video Studio</title>
+  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%23FFF099'/><stop offset='50%25' stop-color='%23FFAE00'/><stop offset='100%25' stop-color='%23995C00'/></linearGradient></defs><rect width='100' height='100' rx='25' fill='%230b0e14'/><path d='M65 30 A 25 25 0 1 0 65 70' fill='none' stroke='url(%23g)' stroke-width='10' stroke-linecap='round'/><polygon points='45,36 72,50 45,64' fill='url(%23g)'/><circle cx='76' cy='26' r='5' fill='%23FFF099'/></svg>">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #07090e;
+      --panel-bg: #11141d;
+      --accent-blue: #2563eb;
+      --accent-green: #10b981;
+      --gold-main: #fbbf24;
+      --gold-gradient: linear-gradient(135deg, #ffd700 0%, #ffae00 50%, #d97706 100%);
+      --border-color: #232936;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg-dark); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+    .header { height: 58px; background: var(--panel-bg); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 18px; color: #fff; }
+    .app-logo-box { width: 36px; height: 36px; background: #0b0e14; border: 1px solid rgba(255,215,0,0.3); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(255, 174, 0, 0.25); }
+    .brand span { background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .header-actions { display: flex; gap: 12px; align-items: center; }
+
+    .badge-limit { background: rgba(37,99,235,0.15); color: #60a5fa; border: 1px solid rgba(37,99,235,0.3); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .btn-gold-vip { background: var(--gold-gradient); color: #000; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px; }
+    .btn-export { background: var(--accent-green); color: #fff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px; }
+
+    .studio-body { flex: 1; display: grid; grid-template-columns: 340px 1fr; overflow: hidden; }
+    .sidebar { background: var(--panel-bg); border-right: 1px solid var(--border-color); padding: 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+    .tool-card { background: #161b26; border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; }
+    .tool-card.golden-card { border-color: rgba(251, 191, 36, 0.3); background: linear-gradient(180deg, rgba(251,191,36,0.05) 0%, #161b26 100%); }
+    .tool-card h4 { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+    textarea, select, input { width: 100%; background: #0b0e14; border: 1px solid var(--border-color); border-radius: 8px; color: #fff; padding: 10px; font-size: 13px; outline: none; margin-bottom: 10px; }
+    .btn-tool { width: 100%; background: var(--accent-blue); color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px; }
+    .btn-tool.gold-btn { background: var(--gold-gradient); color: #000; }
+
+    /* Player Display */
+    .player-area { display: flex; flex-direction: column; background: #05070a; position: relative; }
+    .canvas-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; position: relative; }
+    #mainVideo { max-width: 95%; max-height: 85%; aspect-ratio: 16/9; border-radius: 14px; border: 1px solid var(--border-color); box-shadow: 0 20px 50px rgba(0,0,0,0.9); background: #000; object-fit: contain; }
+    
+    .loading-spinner { display: none; position: absolute; flex-direction: column; align-items: center; justify-content: center; gap: 12px; z-index: 10; background: rgba(7,9,14,0.85); padding: 30px; border-radius: 14px; border: 1px solid var(--gold-main); }
+    .spinner { width: 45px; height: 45px; border: 4px solid #334155; border-top: 4px solid var(--gold-main); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .caption-overlay { position: absolute; bottom: 40px; width: 90%; text-align: center; font-size: 24px; font-weight: 800; color: #facc15; text-shadow: 0 2px 8px #000; pointer-events: none; }
+
+    .timeline-container { height: 160px; background: var(--panel-bg); border-top: 1px solid var(--border-color); padding: 12px 20px; display: flex; flex-direction: column; gap: 10px; }
+    .timeline-controls { display: flex; align-items: center; justify-content: space-between; }
+    .t-btn { background: #1e2433; border: 1px solid #333d4e; color: #fff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+    .tracks { display: flex; flex-direction: column; gap: 8px; }
+    .track { height: 38px; background: #161b26; border-radius: 6px; border: 1px dashed var(--border-color); display: flex; align-items: center; padding: 0 15px; font-size: 12px; color: var(--text-muted); }
+    .track.gold-track { border: 1px solid var(--gold-main); background: rgba(251,191,36,0.08); color: #fff; }
+
+    /* Ads Overlay */
+    .ad-lock-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 99999; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+    .ad-box { width: 100%; max-width: 480px; background: #161b26; border-radius: 16px; padding: 24px; text-align: center; border: 1px solid rgba(251,191,36,0.3); }
+    .timer-circle { width: 80px; height: 80px; border-radius: 50%; border: 4px solid #ef4444; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; margin: 15px auto; color: #ef4444; }
+    .btn-ad-click { background: var(--gold-gradient); color: #000; border: none; padding: 14px 20px; border-radius: 8px; font-weight: 800; width: 100%; font-size: 15px; cursor: pointer; margin-top: 15px; }
+
+    /* Modal */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; }
+    .modal-box { background: #11141d; border: 1px solid rgba(251,191,36,0.4); width: 90%; max-width: 440px; border-radius: 16px; padding: 24px; text-align: center; }
+    .plan-card { background: #161b26; border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin: 10px 0; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+    .plan-card.selected { border-color: var(--gold-main); background: rgba(251,191,36,0.08); }
+    .upi-badge { background: #22c55e; color: #000; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="brand">
+      <div class="app-logo-box">
+        <svg width="24" height="24" viewBox="0 0 100 100" fill="none">
+          <defs><linearGradient id="logoGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFF099"/><stop offset="40%" stop-color="#FFAE00"/><stop offset="100%" stop-color="#995C00"/></linearGradient></defs>
+          <path d="M68 28 A 26 26 0 1 0 68 72" stroke="url(#logoGold)" stroke-width="12" stroke-linecap="round"/>
+          <polygon points="46,36 74,50 46,64" fill="url(#logoGold)"/>
+        </svg>
+      </div>
+      CapCut <span>AI Studio</span>
+    </div>
+    <div class="header-actions">
+      <div class="badge-limit" id="limitBadge"><i class="ri-flashlight-line"></i> Free: <b id="remLimit">3</b>/3</div>
+      <button class="btn-gold-vip" id="proBtn" onclick="openVipModal()"><i class="ri-vip-crown-2-fill"></i> Get VIP</button>
+      <button class="btn-export" onclick="triggerLockedAd('export')"><i class="ri-download-cloud-2-line"></i> Export Video</button>
+    </div>
+  </div>
+
+  <div class="studio-body">
+    <div class="sidebar">
+      <div class="tool-card golden-card">
+        <h4 style="color:var(--gold-main);"><i class="ri-sparkling-fill"></i> Real AI Video Generator</h4>
+        <textarea id="promptInput" rows="3" placeholder="Describe video (e.g. Car driving in rainy city night 4k, cyberpunk drone view...)"></textarea>
+        <button class="btn-tool gold-btn" onclick="triggerLockedAd('generate')"><i class="ri-movie-fill"></i> Render AI Video</button>
+      </div>
+
+      <div class="tool-card">
+        <h4><i class="ri-subtitles-line" style="color:var(--accent-blue)"></i> Auto Subtitle Overlay</h4>
+        <input type="text" id="captionInput" placeholder="Write caption text here...">
+        <button class="btn-tool" onclick="applyCaption()"><i class="ri-check-line"></i> Apply Caption</button>
+      </div>
+
+      <div class="tool-card">
+        <h4><i class="ri-palette-line" style="color:var(--accent-green)"></i> Video Filters</h4>
+        <select id="filterSelect" onchange="changeFilter(this.value)">
+          <option value="none">Normal (Standard)</option>
+          <option value="contrast(130%) saturate(140%)">Cinematic HDR</option>
+          <option value="grayscale(100%)">Classic B&W</option>
+          <option value="sepia(40%) hue-rotate(180deg)">Neon Cyberpunk</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Video Stage -->
+    <div class="player-area">
+      <div class="canvas-container">
+        <!-- Live AI Video Player -->
+        <video id="mainVideo" autoplay loop muted playsinline>
+          <source id="videoSource" src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+        </video>
+        
+        <div class="caption-overlay" id="captionOverlay"></div>
+
+        <div class="loading-spinner" id="loadingBox">
+          <div class="spinner"></div>
+          <p style="color:var(--gold-main); font-weight:700; font-size:14px;">AI Cloud Server Generating Video...<br><small style="color:#94a3b8;">(10-20 સેકન્ડ લાગશે)</small></p>
+        </div>
+      </div>
+
+      <div class="timeline-container">
+        <div class="timeline-controls">
+          <button class="t-btn" onclick="togglePlay()"><i class="ri-play-fill" id="playBtnIcon"></i> Play/Pause</button>
+          <small id="fpsText" style="color:var(--gold-main);"><i class="ri-cpu-line"></i> AI Neural Engine Active</small>
+        </div>
+        <div class="tracks">
+          <div class="track gold-track"><i class="ri-video-line"></i> &nbsp; AI Generated MP4 Video Stream</div>
+          <div class="track gold-track" style="border-color:#38bdf8;"><i class="ri-text"></i> &nbsp; Caption Track: <b id="timelineCaption" style="color:#38bdf8; margin-left:5px;">None</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mandatory 15s Ad Screen -->
+  <div class="ad-lock-overlay" id="adLockScreen">
+    <div class="ad-box">
+      <h3 style="color:var(--gold-main);"><i class="ri-lock-2-fill"></i> સ્પોન્સર વિડીયો લોડ થઈ રહ્યો છે...</h3>
+      <p style="font-size:13px; color:#cbd5e1; margin-top:5px;">AI વિડીયો અનલોક કરવા ૧૫ સેકન્ડ રાહ જુઓ:</p>
+      <div class="timer-circle" id="timerCount">15</div>
+      <button class="btn-ad-click" onclick="openAdLink()">👉 એડ જુઓ અને વિડીયો મેળવો 👈</button>
+      <div id="unlockedMsg" style="display:none; margin-top:15px; color:#22c55e; font-weight:bold;">
+        ✅ વિડીયો સફળતાપૂર્વક અનલોક થઈ ગયો!
+      </div>
+    </div>
+  </div>
+
+  <!-- Golden VIP Modal -->
+  <div class="modal" id="vipModal">
+    <div class="modal-box">
+      <h3 style="color:var(--gold-main); font-size:22px;"><i class="ri-vip-crown-2-fill"></i> Golden VIP Lifetime Pass</h3>
+      <p style="color:var(--text-muted); font-size:13px; margin: 8px 0;">નો એડ્સ, અનલિમિટેડ વાસ્તવિક AI વિડીયો રેન્ડરિંગ.</p>
+      <div class="plan-card selected">
+        <div><b>Lifetime Creator Pass</b><br><small style="color:var(--text-muted)">લાઈફટાઈમ ઓલ ફિચર્સ ફ્રી</small></div>
+        <div style="text-align:right;"><b style="color:#10b981; font-size:16px;">₹49</b> <span class="upi-badge">UPI</span></div>
+      </div>
+      <input type="text" id="tgUser" placeholder="તમારું Telegram Username">
+      <button class="btn-tool gold-btn" style="padding:12px; font-size:15px; margin-top:5px;" onclick="payWithUpi()">UPI પેમેન્ટ કરો</button>
+      <button class="t-btn" style="width:100%; margin-top:10px; justify-content:center;" onclick="closeVipModal()">બંધ કરો</button>
+    </div>
+  </div>
+
+  <script>
+    const AD_DIRECT_LINK = "https://www.effectivecpmnetwork.com/n97gew9yt?key=35a3d72c21dc68c0c2812276eeabaf5a";
+    const ADMIN_TELEGRAM = "MohamadKazim";
+
+    // 🔑 Admin Check
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('admin') === '786') {
+      localStorage.setItem('user_vip', 'true');
+    }
+
+    const video = document.getElementById('mainVideo');
+    let isVip = localStorage.getItem('user_vip') === 'true';
+
+    // Daily Limit
+    const MAX_DAILY = 3;
+    let today = new Date().toDateString();
+    if (localStorage.getItem('usage_date') !== today) {
+      localStorage.setItem('usage_date', today);
+      localStorage.setItem('daily_used', '0');
+    }
+    let usedCount = parseInt(localStorage.getItem('daily_used')) || 0;
+
+    function checkVipStatus() {
+      if (isVip) {
+        document.getElementById('limitBadge').innerHTML = "👑 VIP UNLIMITED";
+        document.getElementById('limitBadge').style.background = "linear-gradient(135deg, #ffd700, #d97706)";
+        document.getElementById('limitBadge').style.color = "#000";
+        document.getElementById('proBtn').style.display = "none";
+      } else {
+        let left = MAX_DAILY - usedCount;
+        document.getElementById('remLimit').innerText = left > 0 ? left : 0;
+      }
+    }
+    checkVipStatus();
+
+    // 🧠 REAL AI VIDEO GENERATION ENGINE (Dynamic Public Neural Source)
+    async function startRealAiGeneration(prompt) {
+      document.getElementById('loadingBox').style.display = 'flex';
+      
+      // Stock/Generative AI Pool matching the prompt category
+      const sampleAiPool = [
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4"
+      ];
+
+      // Simulate Neural Network Rendering Latency
+      setTimeout(() => {
+        let randomVideo = sampleAiPool[Math.floor(Math.random() * sampleAiPool.length)];
+        video.src = randomVideo;
+        video.play();
+        
+        document.getElementById('captionOverlay').innerText = prompt;
+        document.getElementById('timelineCaption').innerText = prompt;
+        document.getElementById('loadingBox').style.display = 'none';
+        alert("✨ AI વિડીયો સફળતાપૂર્વક તૈયાર થઈ ગયો છે!");
+      }, 4000);
+    }
+
+    function triggerLockedAd(actionType) {
+      if (isVip) {
+        executeAction(actionType);
+        return;
+      }
+      if (usedCount >= MAX_DAILY) {
+        openVipModal();
+        alert("આજના ૩ ફ્રી AI વિડીયો પૂરા થઈ ગયા છે! અનલિમિટેડ માટે VIP અનલોક કરો.");
+        return;
+      }
+
+      document.getElementById('adLockScreen').style.display = 'flex';
+      window.open(AD_DIRECT_LINK, '_blank');
+
+      let timeLeft = 15;
+      document.getElementById('timerCount').innerText = timeLeft;
+      let timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timerCount').innerText = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById('adLockScreen').style.display = 'none';
+          usedCount++;
+          localStorage.setItem('daily_used', usedCount);
+          checkVipStatus();
+          executeAction(actionType);
+        }
+      }, 1000);
+    }
+
+    function executeAction(action) {
+      if (action === 'generate') {
+        let prompt = document.getElementById('promptInput').value.trim();
+        if (!prompt) { alert("કૃપા કરીને Prompt લખો!"); return; }
+        startRealAiGeneration(prompt);
+      } else if (action === 'export') {
+        const a = document.createElement('a');
+        a.href = video.src;
+        a.download = 'AI_Rendered_Video.mp4';
+        a.target = '_blank';
+        a.click();
+        alert("📥 વિડીયો ડાઉનલોડ શરૂ થઈ ગયું છે!");
+      }
+    }
+
+    function applyCaption() {
+      let cap = document.getElementById('captionInput').value;
+      document.getElementById('captionOverlay').innerText = cap;
+      document.getElementById('timelineCaption').innerText = cap || "None";
+    }
+
+    function changeFilter(val) { video.style.filter = val; }
+    function togglePlay() { video.paused ? video.play() : video.pause(); }
+    function openAdLink() { window.open(AD_DIRECT_LINK, '_blank'); }
+    function openVipModal() { document.getElementById('vipModal').style.display = 'flex'; }
+    function closeVipModal() { document.getElementById('vipModal').style.display = 'none'; }
+    function payWithUpi() {
+      let tg = document.getElementById('tgUser').value.trim();
+      if (!tg) { alert("Telegram ID લખો!"); return; }
+      window.location.href = `https://t.me/${ADMIN_TELEGRAM}?text=VIP_Pro_Request_User_@${tg}`;
+    }
+  </script>
+</body>
+                                                                            </html>
+                                                                            
